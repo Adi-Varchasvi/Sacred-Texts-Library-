@@ -130,7 +130,11 @@ open class SacredTextsLibrary : HttpSource() {
     }
 
     // Page image URLs are direct, so the default imageRequest (GET on the
-    // image URL with our headers) is all we need — no override required.
+    // image URL with our headers) is all we need. imageUrlParse is only
+    // called when Page.imageUrl is unset — which never happens here — but
+    // the base class declares it abstract, so it must be overridden.
+    override fun imageUrlParse(response: Response): String =
+        throw UnsupportedOperationException("Direct image URLs; imageUrlParse is unused")
 
     // ------------------------------------------------------------------
     // Misc
@@ -150,7 +154,7 @@ open class SacredTextsLibrary : HttpSource() {
     // ------------------------------------------------------------------
 
     private fun manifestTexts(response: Response): List<LibraryText> {
-        val root = JSONObject(response.body.string())
+        val root = JSONObject(response.body!!.string())
         val out = mutableListOf<LibraryText>()
         val texts: JSONArray = root.getJSONArray("texts")
         for (i in 0 until texts.length()) {
