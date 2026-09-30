@@ -30,7 +30,9 @@ jobs:
         # Only runs when the KEYSTORE_BASE64 secret exists (see README.md
         # "Signing the release APK"). Without it the build still succeeds
         # but the APK is unsigned.
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        # NOTE: the `secrets` context cannot be used in `if:` expressions —
+        # GitHub rejects the workflow at parse time. Read it through `env`.
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
