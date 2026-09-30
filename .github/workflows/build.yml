@@ -24,7 +24,20 @@ jobs:
           java-version: 17
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        # The ubuntu runner image already ships an Android SDK with
+        # pre-accepted licenses. android-actions/setup-android@v3 is
+        # unmaintained and its license-acceptance step hangs on current
+        # cmdline-tools, so we use the preinstalled SDK directly.
+        run: |
+          SDK=/usr/local/lib/android/sdk
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          echo "$SDK/cmdline-tools/latest/bin:$SDK/platform-tools" >> "$GITHUB_PATH"
+          mkdir -p "$HOME/.android"
+          touch "$HOME/.android/repositories.cfg"
+          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0" > /dev/null 2>&1 || true
+          "$SDK/cmdline-tools/latest/bin/sdkmanager" --list_installed 2>/dev/null | grep -E "platforms;android-34|build-tools" || true
 
       - name: Restore release keystore
         # Only runs when the KEYSTORE_BASE64 secret exists (see README.md
