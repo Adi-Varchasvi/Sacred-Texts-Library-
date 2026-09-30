@@ -57,4 +57,8 @@ dependencies {
     // NOTE: keep Kotlin at 2.3.0 — the lib was compiled with Kotlin 2.3
     // metadata and other versions break API visibility.
     compileOnly("com.github.keiyoushi:extensions-lib:18a8e26be2")
+    // okhttp3 is used directly (Headers, Request, Response) but the JitPack
+    // POM does not expose it transitively, so it is declared explicitly.
+    // compileOnly: the host app provides okhttp at runtime.
+    compileOnly("com.squareup.okhttp3:okhttp:4.12.0")
 }
